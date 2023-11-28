@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
+using PeterHan.PLib.Options;
 using STRINGS;
 using UnityEngine;
 using static STRINGS.BUILDINGS.PREFABS;
@@ -59,6 +60,26 @@ namespace MixJadeFirstMod
                     },
                     sortOrder = 600
                 };
+                // 新配方：沙子合成冰霜汉堡(烤炉制作)
+                ComplexRecipe.RecipeElement[] array3 = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement("Sand".ToTag(), 0.01f)
+                };
+                ComplexRecipe.RecipeElement[] array4 = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement("Burger".ToTag(), 1f, ComplexRecipe.RecipeElement.TemperatureOperation.Heated, false)
+                };
+                SpiceBreadConfig.recipe = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("CookingStation", array3, array4), array3, array4)
+                {
+                    time = 8f,
+                    description = ITEMS.FOOD.SPICEBREAD.RECIPEDESC,
+                    nameDisplay = ComplexRecipe.RecipeNameDisplay.Result,
+                    fabricators = new List<Tag>
+                    {
+                        "CookingStation"
+                    },
+                    sortOrder = 600
+                };
             }
         }
         // ================================【氧气扩散器】====================================
@@ -76,6 +97,27 @@ namespace MixJadeFirstMod
                 {
             new ElementConverter.OutputElement(5f, SimHashes.Oxygen, 303.15f, false, false, 0f, 1f, 1f, byte.MaxValue, 0, true)
                 };
+            }
+        }
+        // ================================【存储箱】====================================
+        [HarmonyPatch(typeof(StorageLockerConfig),"DoPostConfigureComplete")]
+        public class Patches_e
+        {
+            // 容量从两万到十万，这个修改原理还没搞懂，因为capacityKg是类中的常量
+            public static void Postfix(ref GameObject go)
+            {
+                go.AddOrGet<Storage>().capacityKg = 100000f;
+            }
+        }
+        // ================================【电线的负载功率】====================================
+        [HarmonyPatch(typeof(Wire), "GetMaxWattageAsFloat")]
+        public class Patches_f
+        {
+            // 将所有的电线负载改成5万
+            public static bool Prefix(ref float __result, Wire.WattageRating rating)
+            {
+                __result = 50000f;
+                return false;
             }
         }
     }
