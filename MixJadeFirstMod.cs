@@ -120,5 +120,55 @@ namespace MixJadeFirstMod
                 return false;
             }
         }
+        // ================================【储液库的容量100吨】====================================
+        [HarmonyPatch(typeof(LiquidReservoirConfig),"ConfigureBuildingTemplate")]
+        public class Patches_g
+        {
+            private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
+            {
+                List<CodeInstruction> list = codeInstructions.ToList<CodeInstruction>();
+                list[17].operand = 100000f;
+                return list.AsEnumerable<CodeInstruction>();
+            }
+        }
+        // ================================【储气库的容量100吨】====================================
+        [HarmonyPatch(typeof(GasReservoirConfig),"ConfigureBuildingTemplate")]
+        public class Patches_h
+        {
+            private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
+            {
+                List<CodeInstruction> list = codeInstructions.ToList<CodeInstruction>();
+                list[14].operand = 100000f;
+                return list.AsEnumerable<CodeInstruction>();
+            }
+        }
+        // ================================【修改碎石机配方】====================================
+        [HarmonyPatch(typeof(RockCrusherConfig), "ConfigureBuildingTemplate")]
+        public class Patches_i
+        {
+            // 配方：沙子生成金子和钢、塑料
+            public static void Postfix()
+            {
+                Element element = ElementLoader.FindElementByHash(SimHashes.Gold);
+                ComplexRecipe.RecipeElement[] array = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Sand).tag, 1f)
+                };
+                ComplexRecipe.RecipeElement[] array2 = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Steel).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false),
+                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Gold).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false),
+                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Polypropylene).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false)
+                };
+                ComplexRecipe complexRecipe = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("RockCrusher", array, array2), array, array2);
+                complexRecipe.time = 8f;
+                complexRecipe.description = string.Format(BUILDINGS.PREFABS.ROCKCRUSHER.LIME_RECIPE_DESCRIPTION, SimHashes.Gold.CreateTag().ProperName(), ITEMS.INDUSTRIAL_PRODUCTS.CRAB_SHELL.NAME);
+                complexRecipe.nameDisplay = ComplexRecipe.RecipeNameDisplay.IngredientToResult;
+                complexRecipe.fabricators = new List<Tag>
+                {
+                    TagManager.Create("RockCrusher")
+                };
+            }
+        }
     }
 }
