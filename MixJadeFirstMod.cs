@@ -33,6 +33,25 @@ namespace MixJadeFirstMod
                 battery.joulesLostPerSecond = 0f;
             }
         }
+        // ================================【普通电池:发热功率】====================================
+        [HarmonyPatch(typeof(BatteryConfig), "CreateBuildingDef")] // 定位代码
+        public class Patches_b_heat1  // 自定义名称
+        {
+            public static void Postfix(ref BuildingDef __result) // 后置补丁
+            {
+                __result.SelfHeatKilowattsWhenActive = 0f; // 自发热功率
+                __result.ExhaustKilowattsWhenActive = 0f; // 排出热量功率
+            }
+        }
+        // ================================【电灯泡:发热功率】====================================
+        [HarmonyPatch(typeof(CeilingLightConfig), "CreateBuildingDef")] // 定位代码
+        public class Patches_b_heat2  // 自定义名称
+        {
+            public static void Postfix(ref BuildingDef __result) // 后置补丁
+            {
+                __result.SelfHeatKilowattsWhenActive = 0f; // 自发热功率
+            }
+        }
         // ================================【食物压制器】====================================
         [HarmonyPatch(typeof(MicrobeMusherConfig), "ConfigureRecipes")]
         public class Patches_c
