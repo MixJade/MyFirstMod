@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using HarmonyLib;
 using STRINGS;
 using UnityEngine;
@@ -40,7 +41,7 @@ namespace MixJadeFirstMod
         }
         // ================================【电灯泡:发热功率】====================================
         [HarmonyPatch(typeof(CeilingLightConfig), "CreateBuildingDef")] // 定位代码
-        public class Patches_b_heat2  // 自定义名称
+        public class Patches_b_heat2 // 自定义名称
         {
             public static void Postfix(ref BuildingDef __result) // 后置补丁
             {
@@ -114,7 +115,7 @@ namespace MixJadeFirstMod
             }
         }
         // ================================【存储箱】====================================
-        [HarmonyPatch(typeof(StorageLockerConfig),"DoPostConfigureComplete")]
+        [HarmonyPatch(typeof(StorageLockerConfig), "DoPostConfigureComplete")]
         public class Patches_e
         {
             // 容量从两万到十万，这个修改原理还没搞懂，因为capacityKg是类中的常量
@@ -135,25 +136,25 @@ namespace MixJadeFirstMod
             }
         }
         // ================================【储液库的容量100吨】====================================
-        [HarmonyPatch(typeof(LiquidReservoirConfig),"ConfigureBuildingTemplate")]
+        [HarmonyPatch(typeof(LiquidReservoirConfig), "ConfigureBuildingTemplate")]
         public class Patches_g
         {
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
             {
-                List<CodeInstruction> list = codeInstructions.ToList<CodeInstruction>();
+                List<CodeInstruction> list = codeInstructions.ToList();
                 list[17].operand = 100000f;
-                return list.AsEnumerable<CodeInstruction>();
+                return list.AsEnumerable();
             }
         }
         // ================================【储气库的容量100吨】====================================
-        [HarmonyPatch(typeof(GasReservoirConfig),"ConfigureBuildingTemplate")]
+        [HarmonyPatch(typeof(GasReservoirConfig), "ConfigureBuildingTemplate")]
         public class Patches_h
         {
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
             {
-                List<CodeInstruction> list = codeInstructions.ToList<CodeInstruction>();
+                List<CodeInstruction> list = codeInstructions.ToList();
                 list[14].operand = 100000f;
-                return list.AsEnumerable<CodeInstruction>();
+                return list.AsEnumerable();
             }
         }
         // ================================【修改碎石机配方】====================================
@@ -183,6 +184,50 @@ namespace MixJadeFirstMod
                     TagManager.Create("RockCrusher")
                 }
                 };
+            }
+        }
+        // ================================【液冷修改】====================================
+        // 由于液冷是直接引用的气冷模板，因此修改气冷的配置即可。
+        [HarmonyPatch(typeof(AirConditioner), "UpdateState")]
+        public static class ConditionerHeatAdjust
+        {
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                List<CodeInstruction> list = new List<CodeInstruction>(instructions);
+                for (int i = 1; i < list.Count - 1; i++)
+                {
+                    bool flag1 = list[i].opcode == OpCodes.Stloc_S && list[i + 1].opcode == OpCodes.Ldloc_S && list[i].operand == list[i + 1].operand && list[i - 1].opcode == OpCodes.Add;
+                    if (flag1)
+                    {
+                        list.InsertRange(i + 1, new CodeInstruction[]
+                        {
+                            new CodeInstruction(OpCodes.Ldarg_0, null),
+                            new CodeInstruction(OpCodes.Callvirt, typeof(ConditionerHeatAdjust).GetMethod("SetTargetHeat")),
+                            new CodeInstruction(list[i].opcode, list[i].operand)
+                        });
+                        break;
+                    }
+                }
+                for (int j = 0; j < list.Count - 1; j++)
+                {
+                    bool flag2 = list[j].opcode == OpCodes.Mul && list[j + 1].opcode == OpCodes.Ldloc_S && list[j + 2].opcode == OpCodes.Mul && list[j + 3].opcode == OpCodes.Stloc_S;
+                    if (flag2)
+                    {
+                        list.InsertRange(j + 3, new CodeInstruction[]
+                        {
+                            new CodeInstruction(OpCodes.Ldc_R4, 0f),
+                            new CodeInstruction(OpCodes.Mul, null)
+                        });
+                        break;
+                    }
+                }
+                return list.AsEnumerable();
+            }
+
+            // 设置输出温度：这个方法前面有引用
+            public static float SetTargetHeat(AirConditioner conditioner)
+            {
+                return 291.15f; // 恒定输出18度
             }
         }
     }
