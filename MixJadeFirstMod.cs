@@ -73,7 +73,7 @@ namespace MixJadeFirstMod
                     {
                         "MicrobeMusher"
                     },
-                    sortOrder = 600
+                    sortOrder = 300
                 };
                 // 新配方：沙子合成冰霜汉堡(烤炉制作)
                 ComplexRecipe.RecipeElement[] array3 = new ComplexRecipe.RecipeElement[]
@@ -93,7 +93,30 @@ namespace MixJadeFirstMod
                     {
                         "CookingStation"
                     },
-                    sortOrder = 600
+                    sortOrder = 301
+                };
+                // 修改碎石机配方
+                // 配方：沙子生成金子和钢、塑料
+                ComplexRecipe.RecipeElement[] array21 = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement("Sand".ToTag(), 1f)
+                };
+                ComplexRecipe.RecipeElement[] array22 = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement("Steel".ToTag(), 600f),
+                    new ComplexRecipe.RecipeElement("Gold".ToTag(), 600f),
+                    new ComplexRecipe.RecipeElement("Polypropylene".ToTag(), 300f)
+                };
+                SpiceBreadConfig.recipe = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("RockCrusher", array21, array22), array21, array22)
+                {
+                    time = 8f,
+                    nameDisplay = ComplexRecipe.RecipeNameDisplay.IngredientToResult,
+                    description = "Steel",
+                    fabricators = new List<Tag>
+                    {
+                        TagManager.Create("RockCrusher")
+                    },
+                    sortOrder = 302
                 };
             }
         }
@@ -155,35 +178,6 @@ namespace MixJadeFirstMod
                 List<CodeInstruction> list = codeInstructions.ToList();
                 list[14].operand = 100000f;
                 return list.AsEnumerable();
-            }
-        }
-        // ================================【修改碎石机配方】====================================
-        [HarmonyPatch(typeof(RockCrusherConfig), "ConfigureBuildingTemplate")]
-        public class Patches_i
-        {
-            // 配方：沙子生成金子和钢、塑料
-            public static void Postfix()
-            {
-                ComplexRecipe.RecipeElement[] array = new ComplexRecipe.RecipeElement[]
-                {
-                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Sand).tag, 1f)
-                };
-                ComplexRecipe.RecipeElement[] array2 = new ComplexRecipe.RecipeElement[]
-                {
-                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Steel).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false),
-                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Gold).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false),
-                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Polypropylene).tag, 300f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false)
-                };
-                _ = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("RockCrusher", array, array2), array, array2)
-                {
-                    time = 8f,
-                    description = string.Format(BUILDINGS.PREFABS.ROCKCRUSHER.LIME_RECIPE_DESCRIPTION, SimHashes.Gold.CreateTag().ProperName(), ITEMS.INDUSTRIAL_PRODUCTS.CRAB_SHELL.NAME),
-                    nameDisplay = ComplexRecipe.RecipeNameDisplay.IngredientToResult,
-                    fabricators = new List<Tag>
-                {
-                    TagManager.Create("RockCrusher")
-                }
-                };
             }
         }
         // ================================【液冷修改】====================================
