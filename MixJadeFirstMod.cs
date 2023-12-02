@@ -71,7 +71,8 @@ namespace MixJadeFirstMod
                     nameDisplay = ComplexRecipe.RecipeNameDisplay.Result,
                     fabricators = new List<Tag>
                     {
-                        "MicrobeMusher"
+                        "MicrobeMusher",
+                        "CookingStation"
                     },
                     sortOrder = 300
                 };
@@ -114,7 +115,7 @@ namespace MixJadeFirstMod
                     description = "Steel",
                     fabricators = new List<Tag>
                     {
-                        TagManager.Create("RockCrusher")
+                        "RockCrusher"
                     },
                     sortOrder = 302
                 };
