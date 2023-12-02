@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using HarmonyLib;
-using PeterHan.PLib.Options;
 using STRINGS;
 using UnityEngine;
-using static STRINGS.BUILDINGS.PREFABS;
 
 namespace MixJadeFirstMod
 {
@@ -105,7 +100,7 @@ namespace MixJadeFirstMod
         [HarmonyPatch(typeof(MineralDeoxidizerConfig), "ConfigureBuildingTemplate")]
         public class Patches_d
         {
-            public static void Postfix(GameObject go, Tag prefab_tag) // 参数要与定位的函数一致
+            public static void Postfix(GameObject go) // 参数要与定位的函数一致
             {
                 ElementConverter elementConverter = go.AddOrGet<ElementConverter>();
                 elementConverter.consumedElements = new ElementConverter.ConsumedElement[]
@@ -133,7 +128,7 @@ namespace MixJadeFirstMod
         public class Patches_f
         {
             // 将所有的电线负载改成5万
-            public static bool Prefix(ref float __result, Wire.WattageRating rating)
+            public static bool Prefix(ref float __result)
             {
                 __result = 50000f;
                 return false;
@@ -143,7 +138,7 @@ namespace MixJadeFirstMod
         [HarmonyPatch(typeof(LiquidReservoirConfig),"ConfigureBuildingTemplate")]
         public class Patches_g
         {
-            private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
             {
                 List<CodeInstruction> list = codeInstructions.ToList<CodeInstruction>();
                 list[17].operand = 100000f;
@@ -154,7 +149,7 @@ namespace MixJadeFirstMod
         [HarmonyPatch(typeof(GasReservoirConfig),"ConfigureBuildingTemplate")]
         public class Patches_h
         {
-            private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> codeInstructions)
             {
                 List<CodeInstruction> list = codeInstructions.ToList<CodeInstruction>();
                 list[14].operand = 100000f;
@@ -168,7 +163,6 @@ namespace MixJadeFirstMod
             // 配方：沙子生成金子和钢、塑料
             public static void Postfix()
             {
-                Element element = ElementLoader.FindElementByHash(SimHashes.Gold);
                 ComplexRecipe.RecipeElement[] array = new ComplexRecipe.RecipeElement[]
                 {
                     new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Sand).tag, 1f)
@@ -177,15 +171,17 @@ namespace MixJadeFirstMod
                 {
                     new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Steel).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false),
                     new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Gold).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false),
-                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Polypropylene).tag, 600f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false)
+                    new ComplexRecipe.RecipeElement(ElementLoader.FindElementByHash(SimHashes.Polypropylene).tag, 300f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false)
                 };
-                ComplexRecipe complexRecipe = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("RockCrusher", array, array2), array, array2);
-                complexRecipe.time = 8f;
-                complexRecipe.description = string.Format(BUILDINGS.PREFABS.ROCKCRUSHER.LIME_RECIPE_DESCRIPTION, SimHashes.Gold.CreateTag().ProperName(), ITEMS.INDUSTRIAL_PRODUCTS.CRAB_SHELL.NAME);
-                complexRecipe.nameDisplay = ComplexRecipe.RecipeNameDisplay.IngredientToResult;
-                complexRecipe.fabricators = new List<Tag>
+                _ = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("RockCrusher", array, array2), array, array2)
+                {
+                    time = 8f,
+                    description = string.Format(BUILDINGS.PREFABS.ROCKCRUSHER.LIME_RECIPE_DESCRIPTION, SimHashes.Gold.CreateTag().ProperName(), ITEMS.INDUSTRIAL_PRODUCTS.CRAB_SHELL.NAME),
+                    nameDisplay = ComplexRecipe.RecipeNameDisplay.IngredientToResult,
+                    fabricators = new List<Tag>
                 {
                     TagManager.Create("RockCrusher")
+                }
                 };
             }
         }
