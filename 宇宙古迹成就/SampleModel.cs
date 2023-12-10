@@ -196,6 +196,32 @@ namespace SampleModel
                     sortOrder = 411
                 };
 
+                // DLC新配方：沙子合成果虫雕像、蜂蜜罐、核电厂模型、放射性情绪戒指、无用的机器
+                // 但仍然算是太空工艺品
+                ComplexRecipe.RecipeElement[] array17 = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement("Sand".ToTag(), 0.01f)
+                };
+                ComplexRecipe.RecipeElement[] array18 = new ComplexRecipe.RecipeElement[]
+                {
+                    new ComplexRecipe.RecipeElement("artifact_grubstatue".ToTag(), 1f), // 果虫雕像
+                    new ComplexRecipe.RecipeElement("artifact_honeyjar".ToTag(), 1f), // 蜂蜜罐
+                    new ComplexRecipe.RecipeElement("artifact_reactormodel".ToTag(), 1f), // 核电厂模型
+                    new ComplexRecipe.RecipeElement("artifact_moodring".ToTag(), 1f), // 放射性情绪戒指
+                    new ComplexRecipe.RecipeElement("artifact_oracle".ToTag(), 1f), // 无用的机器
+                };
+                SpiceBreadConfig.recipe = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("MicrobeMusher", array17, array18), array17, array18)
+                {
+                    time = 8f,
+                    description = ITEMS.FOOD.SPICEBREAD.RECIPEDESC,
+                    nameDisplay = ComplexRecipe.RecipeNameDisplay.Result,
+                    fabricators = new List<Tag>
+                    {
+                        "MicrobeMusher"
+                    },
+                    sortOrder = 412
+                };
+
 
             }
         }
