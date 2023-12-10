@@ -130,7 +130,7 @@ namespace SimplePlant
         }
 
         // ================================【水草】====================================
-        [HarmonyPatch(typeof(GasGrassConfig), "CreatePrefab")] // 定位代码
+        [HarmonyPatch(typeof(SeaLettuceConfig), "CreatePrefab")] // 定位代码
         public class 水草修改  // 自定义名称
         {
             public static void Postfix(ref GameObject __result)
