@@ -129,5 +129,32 @@ namespace SimplePlant
             }
         }
 
+        // ================================【水草】====================================
+        [HarmonyPatch(typeof(GasGrassConfig), "CreatePrefab")] // 定位代码
+        public class 水草修改  // 自定义名称
+        {
+            public static void Postfix(ref GameObject __result)
+            {
+                // 水草的最低温度改为5度，生长环境添加气体
+                EntityTemplates.ExtendEntityToBasicPlant(__result, 248.15f, 278.15f, 338.15f, 398.15f, new SimHashes[]
+                {
+                    SimHashes.Water,
+                    SimHashes.SaltWater,
+                    SimHashes.Brine,
+                    SimHashes.Oxygen,  // 【改】这里是生长环境
+			        SimHashes.ContaminatedOxygen,
+                    SimHashes.CarbonDioxide
+                }, false, 0f, 0.15f, "Lettuce", true, true, true, true, 2400f, 0f, 7400f, SeaLettuceConfig.ID + "Original", STRINGS.CREATURES.SPECIES.SEALETTUCE.NAME);
+                EntityTemplates.ExtendPlantToIrrigated(__result, new PlantElementAbsorber.ConsumeInfo[]
+                {
+                    new PlantElementAbsorber.ConsumeInfo
+                    {
+                        tag = GameTags.DirtyWater, // 灌溉物为污水
+                        massConsumptionRate = 0.01f // 每周期6千克
+                    }
+                });
+            }
+        }
+
     }
 }
