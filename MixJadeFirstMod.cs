@@ -62,7 +62,7 @@ namespace MixJadeFirstMod
                 };
                 ComplexRecipe.RecipeElement[] array2 = new ComplexRecipe.RecipeElement[]
                 {
-                    new ComplexRecipe.RecipeElement("SpiceBread".ToTag(), 1f, ComplexRecipe.RecipeElement.TemperatureOperation.Heated, false)
+                    new ComplexRecipe.RecipeElement("SpiceBread".ToTag(), 1f, ComplexRecipe.RecipeElement.TemperatureOperation.AverageTemperature, false)
                 };
                 SpiceBreadConfig.recipe = new ComplexRecipe(ComplexRecipeManager.MakeRecipeID("MicrobeMusher", array, array2), array, array2)
                 {
@@ -71,8 +71,7 @@ namespace MixJadeFirstMod
                     nameDisplay = ComplexRecipe.RecipeNameDisplay.Result,
                     fabricators = new List<Tag>
                     {
-                        "MicrobeMusher",
-                        "CookingStation"
+                        "MicrobeMusher"
                     },
                     sortOrder = 300
                 };
